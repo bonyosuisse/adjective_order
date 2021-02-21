@@ -12,7 +12,8 @@ def main():
     update_corpora = ""
         #print(tagged_corpora)
     for i in range(len(tagged_corpora) - 1):
-        if 'JJ' in tagged_corpora[i] and 'JJ' in tagged_corpora[i+1]:
+        if 'JJ' in tagged_corpora[i] and 'JJ' in tagged_corpora[i+1] and \
+        'such' not in tagged_corpora[i] and 'such' not in tagged_corpora[i+1]:
             for x in range(i - 6, i + 1):
                 if x == i:
                     update_corpora += "[" + str(tagged_corpora[x][0]) + " "
