@@ -1,10 +1,19 @@
+#requires download of nltk in python
+import os
 import nltk
-from nltk.corpus import gutenberg
+from nltk.corpus import *
+import string
 
 def main():
+   # print("\nHere are the corpora built into nltk:")
+    #for h in os.listdir(nltk.data.find("corpora")):
+        #if '.zip' not in h:
+            #print(h)
+    #print()
+    #chosen_corpora = raw_input("Enter corpora name (copy the name EXACTLY as listed): ")
     print("\nHere are the options of corpora from gutenberg: \n")
-    for t in nltk.corpus.gutenberg.fileids():
-        print(str(t))
+    for corpus in nltk.corpus.gutenberg.fileids():
+        print(str(corpus))
     print()
     text = gutenberg.raw(str(input("Enter text file name (with .txt): ")))
     tokens = nltk.word_tokenize(text)
@@ -13,7 +22,7 @@ def main():
         #print(tagged_corpora)
     for i in range(len(tagged_corpora) - 1):
         if 'JJ' in tagged_corpora[i] and 'JJ' in tagged_corpora[i+1] and \
-        'such' not in tagged_corpora[i] and 'such' not in tagged_corpora[i+1]: # "such" is not an adjective, it's a determiner
+            'such' not in tagged_corpora[i] and 'such' not in tagged_corpora[i+1]:
             for x in range(i - 6, i + 1):
                 if x == i:
                     update_corpora += "[" + str(tagged_corpora[x][0]) + " "
@@ -29,9 +38,11 @@ def main():
             
             #doesn't store consecutive strings, only PAIRINGS
             #ex: if 1 is JJ and 2 is JJ, but 3 is also JJ, it won't save 3
-            #b/c 2 is already in update_corpora, so it won't pass the conditional
+            #need to create a new iterator to check range of tagged_corpora[i -->] b/c
+                #but how to skip to new index at end of range?
+            #need to deal with punctuation counting as an index? need to tack it on 
 
-    f = open(str(input("Enter filename for which you want the data text to be exported (with .txt): ")), "w")
+    f = open(str(input("Enter filename for which you want the data text to be exported (with .txt): \n")), "w")
     f.write(update_corpora)
 
 while True:
