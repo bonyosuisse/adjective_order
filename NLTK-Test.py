@@ -10,46 +10,95 @@ from nltk.corpus import *
 import string
 
 def main():
-   # print("\nHere are the corpora built into nltk:")
-    #for h in os.listdir(nltk.data.find("corpora")):
-        #if '.zip' not in h:
-            #print(h)
-    #print()
-    #chosen_corpora = raw_input("Enter corpora name (copy the name EXACTLY as listed): ")
-    print("\nHere are the options of corpora from gutenberg: \n")
-    for corpus in nltk.corpus.gutenberg.fileids():
+    # prints all corpora in NLTK
+    print("\nHere are the corpora built into nltk:")
+    for h in os.listdir(nltk.data.find("corpora")):
+        if '.zip' not in h:
+            print(h)
+    print()
+
+    # stores user's corpus choice
+    chosen_corpus = input("Enter corpus name (copy the name EXACTLY as listed): ")
+    function_string = "nltk.corpus." + chosen_corpus + ".fileids()"
+
+    # shows all files within user's corpus choice
+    print("\nHere are the options from", chosen_corpus + ": \n")
+    for corpus in eval(function_string):
         print(str(corpus))
     print()
-    text = gutenberg.raw(str(input("Enter text file name (with .txt): ")))
-    tokens = nltk.word_tokenize(text)
-    tagged_corpora = nltk.pos_tag(tokens)
-    update_corpora = ""
-        #print(tagged_corpora)
-    for i in range(len(tagged_corpora) - 1):
-        if 'JJ' in tagged_corpora[i] and 'JJ' in tagged_corpora[i+1] and \
-            'such' not in tagged_corpora[i] and 'such' not in tagged_corpora[i+1]:
-            for x in range(i - 6, i + 1):
-                if x == i:
-                    update_corpora += "[" + str(tagged_corpora[x][0]) + " "
-                else:
-                    update_corpora += str(tagged_corpora[x][0]) + " "
-            for j in range(i + 1, i + 7):
-                if j == i + 1:
-                    update_corpora += str(tagged_corpora[j][0]) + "] "
-                else:
-                    update_corpora += str(tagged_corpora[j][0]) + " "
-            update_corpora += "\n"
-            update_corpora += "\n"
-            
-            #doesn't store consecutive strings, only PAIRINGS
-            #ex: if 1 is JJ and 2 is JJ, but 3 is also JJ, it won't save 3
-            #need to create a new iterator to check range of tagged_corpora[i -->] b/c
-                #but how to skip to new index at end of range?
-            #need to deal with punctuation counting as an index? need to tack it on 
 
-    f = open(str(input("Enter filename for which you want the data text to be exported (with .txt): \n")), "w")
+    # tags all words with corresponding part-of-speech in user's text file choice
+    text_function = chosen_corpus + ".raw(str(input('Enter text file name (with .txt): ')))"
+    text = eval(text_function)
+    tokens = nltk.word_tokenize(text)
+    tagged_corpus = nltk.pos_tag(tokens)
+    update_corpora = ""
+
+    # variables for adjective searching loop
+    consecutive = False
+    curr_consecutive_adjs = []
+    consecutive_start = None
+    consecutive_end = None
+    punctuations = '''!()-[]}{;:'"\,<>./?@#$%^&*_~'''
+
+    # checks each word tagged in the corpus
+    for i in range(len(tagged_corpus)):
+        # begin search for minimum 2 consecutive adjectives
+        # searches for unlimited maximum consecutive adjectives
+        if 'JJ' in tagged_corpus[i] and "such" not in tagged_corpus[i]: 
+            # not looking for consecutive adjectives now, but want to start
+            if not consecutive: 
+              consecutive = True
+              consecutive_start = i
+            curr_consecutive_adjs.append(tagged_corpus[i][0])
+        # checks if the "word" is actually a punctuation
+        elif tagged_corpus[i][0] in punctuations:
+          continue
+        # reached the end of your adjectives
+        else:
+          if consecutive:
+            consecutive = False
+            consecutive_end = i - 1
+            if len(curr_consecutive_adjs) > 1:
+                # prints context BEFORE consecutive adjective string
+              for j in range(consecutive_start - 6, consecutive_start):
+                update_corpora += str(tagged_corpus[j][0]) + " "
+              update_corpora += "["
+              for x in range(len(curr_consecutive_adjs) - 1):
+                update_corpora += curr_consecutive_adjs[x] + " "
+              update_corpora += curr_consecutive_adjs[len(curr_consecutive_adjs)-1] + "]"
+                # prints context AFTER consecutive adjective string
+              for y in range(consecutive_end + 1, consecutive_end + 7):
+                update_corpora += " " + str(tagged_corpus[y][0])
+              update_corpora += "\n"
+              update_corpora += "\n"
+            # clears consecutive adjectives list to prep for the new iteration
+            curr_consecutive_adjs = []
+
+    # stores user's filename choice
+    user_f = str(input("Enter filename for which you want the data text to be exported (with .txt): \n"))
+
+    # opens user's file
+    file = open(user_f, "r")
+    counter = 0
+
+    # reads user's file
+    content = file.read()
+    co_list = content.split("\n")
+
+    # exports line count at the START of user's file
+    for index in co_list:
+        if index:
+            counter += 1
+    f = open(user_f, "w")
+    f.write(str(counter - 1) + " lines" + "\n" + "\n")
+
+    # exports data to a text file of user's choice of filename
     f.write(update_corpora)
 
+    
+
+# user input choice to run, re-run, or stop the program
 while True:
     answer = input("Run the program? (y/n): ")
     if answer not in ('y', 'n'):
@@ -61,11 +110,17 @@ while True:
         print("Goodbye.")
         break
 
-#emma_text = nltk.word_tokenize(emma)
-#print(nltk.pos_tag(emma_text))
+# test code
+"""
+text = "She had been a friend and companion such as few possessed: intelligent, \
+well-informed, useful, gentle, knowing all the ways of the family, \
+interested in all its concerns, and peculiarly interested in herself, \
+in every pleasure, every scheme of hers--one to whom she could speak \
+every thought as it arose, and who had such an affection for her \
+as could never find fault."
 
-#text = "I played with the big red ball"
-#tokenss = nltk.word_tokenize(text)
-#tagged_text = nltk.pos_tag(tokenss)
-#print(tagged_text)
-#output: [('I', 'PRP'), ('played', 'VBD'), ('with', 'IN'), ('the', 'DT'), ('big', 'JJ'), ('red', 'JJ'), ('ball', 'NN')]
+tokenss = nltk.word_tokenize(text)
+tagged_text = nltk.pos_tag(tokenss)
+print(tagged_text)
+"""
+
