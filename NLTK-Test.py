@@ -90,7 +90,7 @@ def main():
     for index in co_list:
         if index:
             counter += 1
-    f = open(user_f, "w")
+    f = open(file, "w")
     f.write(str(counter - 1) + " lines" + "\n" + "\n")
 
     # exports data to a text file of user's choice of filename
